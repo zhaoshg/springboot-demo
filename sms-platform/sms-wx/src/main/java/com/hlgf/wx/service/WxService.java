@@ -38,4 +38,6 @@ public interface WxService {
 
 
     boolean bindWX(WxBindEntity bindEntity);
+
+    WxBindEntity getBindInfo(String openId);
 }

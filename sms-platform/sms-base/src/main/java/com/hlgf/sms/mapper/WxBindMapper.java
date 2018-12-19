@@ -27,6 +27,9 @@ public interface WxBindMapper {
     @Select("select * from HL_WX_BIND where PHONE = #{phone} and ROWNUM = 1")
     WxBindEntity getBindByPhone(@Param("phone") String phone);
 
+    @Select("select * from HL_WX_BIND where OPEN_ID = #{openId} and ROWNUM = 1")
+    WxBindEntity getBindByOpenId(@Param("openId") String openId);
+
     @Update("update HL_WX_BIND set NICK_NAME = #{bind.nickName},OPEN_ID='${bind.openId}',UPDATE_TIME=#{bind.updateTime},STATE=#{bind.state},REMARK=#{bind.remark} where phone = #{bind.phone}")
     int updateBindInfo(@Param("bind") WxBindEntity bind);
 }

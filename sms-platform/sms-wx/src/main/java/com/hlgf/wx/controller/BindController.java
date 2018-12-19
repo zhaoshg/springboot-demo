@@ -58,7 +58,13 @@ public class BindController {
             session.setAttribute("currentUser", userInfo);
         }
         model.addAttribute("userinfo", userInfo);
-        return "bind";
+        WxBindEntity oldBind = wxService.getBindInfo(userInfo.getOpenid());
+        model.addAttribute("bindinfo", oldBind);
+        String type = request.getParameter("type");
+        if (oldBind != null && type == null) {
+            return "bindInfo";
+        } else
+            return "bind";
     }
 
 
@@ -170,7 +176,7 @@ public class BindController {
             } else {
 //              //TODO for test
 //                boolean sendRes = true;
-                String content = "您正在绑定NC的消息提醒，验证码："+bindCode;
+                String content = "您正在绑定NC的消息提醒，验证码：" + bindCode;
                 boolean sendRes = smsSender.smsSend(content, phone, String.valueOf(System.currentTimeMillis()));
                 if (!sendRes) {
                     res.put("res", Boolean.FALSE);

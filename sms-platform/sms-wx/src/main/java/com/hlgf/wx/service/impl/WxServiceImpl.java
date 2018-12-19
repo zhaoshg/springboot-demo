@@ -2,7 +2,6 @@ package com.hlgf.wx.service.impl;
 
 import com.hlgf.sms.mapper.WxBindMapper;
 import com.hlgf.sms.model.WxBindEntity;
-import com.hlgf.sms.service.Sender;
 import com.hlgf.wx.model.AccessToken;
 import com.hlgf.wx.model.WxUserInfo;
 import com.hlgf.wx.service.WxService;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -89,5 +87,10 @@ public class WxServiceImpl implements WxService {
                 return false;
         }
         return true;
+    }
+
+    @Override
+    public WxBindEntity getBindInfo(String openId) {
+        return wxBindMapper.getBindByOpenId(openId);
     }
 }

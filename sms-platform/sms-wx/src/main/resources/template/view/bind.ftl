@@ -26,7 +26,7 @@
     <div class="wa">
         <div class="wa_wrapImgList">
             <p style="color: red">&nbsp;</p>
-            <p style="color: red">&nbsp;</p>
+            <p>绑定手机号后，NC消息以及业务消息将会通过公众号直接发送给您。（此处绑定的手机号必须与您在NC系统中的联系方式一致）</p>
             <p style="color: red">&nbsp;</p>
             <p style="color: red" id="errormsg">&nbsp;</p>
         </div>
@@ -79,7 +79,7 @@
     <#--private String[] privilege;-->
     <#--unionid = <#if userinfo?? && userinfo.unionid??>${userinfo.unionid}</#if>-->
     </p>
-    <#--<p>适用浏览器：IE8、360、FireFox、Chrome、Safari、Opera、傲游、搜狗、世界之窗.</p>-->
+    <#--<p>绑定手机号后，NC消息以及业务消息将会通过公众号直接发送给您。（此处绑定的手机号必须与您在NC系统中的联系方式一致）</p>-->
     <#--<p>来源：<a href="http://sc.chinaz.com/" target="_blank">站长素材</a></p>-->
 </div>
 </body>
