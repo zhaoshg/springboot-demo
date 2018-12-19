@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hlgf.sms.mapper.FundsArrivalsMapper">
+
+    <resultMap id="fundsArrivalsResultMap" type="com.hlgf.sms.model.FundsArrivalsEntity">
+        <result column="customerName" jdbcType="VARCHAR" property="customerName"/>
+        <result column="tel1" jdbcType="VARCHAR" property="tel1"/>
+        <result column="tel2" jdbcType="VARCHAR" property="tel2"/>
+        <result column="tel3" jdbcType="VARCHAR" property="tel3"/>
+        <result column="pkCustomer" jdbcType="VARCHAR" property="pkCustomer"/>
+        <result column="pkRelated" jdbcType="VARCHAR" property="pkRelated"/>
+        <result column="relatedNum" jdbcType="VARCHAR" property="relatedNum"/>
+        <result column="moneyCr" jdbcType="DECIMAL" property="moneyCr"/>
+        <result column="pkGroup" jdbcType="TIMESTAMP" property="pkGroup"/>
+        <result column="groupName" jdbcType="VARCHAR" property="groupName"/>
+        <result column="groupNumber" jdbcType="VARCHAR" property="groupNumber"/>
+        <result column="passDate" jdbcType="VARCHAR" property="passDate"/>
+        <result column="state" jdbcType="INTEGER" property="state"/>
+    </resultMap>
+
+    <select id="findFundsArrivalsPassedRecently" resultMap="fundsArrivalsResultMap">
+        SELECT
+        bc.name customerName,
+        bc.tel1 tel1,
+        bc.tel2 tel2,
+        bc.tel3 tel3,
+        bc.pk_customer pkCustomer,
+        sb.pk_gatheritem pkRelated,
+        sb.billno relatedNum,
+        sb.money_cr moneyCr,
+        so.approvedate passDate,
+        so.pk_org pkGroup,
+        og.name groupName,
+        og.tel groupNumber,
+        st.state state
+        FROM
+        ar_gatheritem sb
+        LEFT JOIN ar_gatherbill so
+        ON sb.pk_gatherbill = so.pk_gatherbill
+        LEFT JOIN bd_customer bc
+        ON sb.customer = bc.pk_customer
+        LEFT JOIN org_orgs og ON so.pk_org = og.pk_org
+        LEFT JOIN hl_sms_send_setting st ON st.pk_Group = og.pk_org
+        WHERE
+        nvl( so.dr, 0 ) = 0
+        AND nvl( sb.dr, 0 ) = 0
+        AND nvl( bc.dr, 0 ) = 0
+        AND nvl( og.dr, 0 ) = 0
+        AND sb.pk_tradetype = 'D2'
+        AND so.billstatus = 1
+        AND
+        BITAND(st.state, ${@com.hlgf.sms.model.SmsSendSetting@FUNDS_ARRIVALS_NOTIFICATION})  <![CDATA[<>]]> 0
+        AND so.approvedate >= #{timeLimit}
+    </select>
+</mapper>

@@ -1,0 +1,160 @@
+debug: false
+
+wx:
+  appid: wxdfb797c8d9c0d73b
+  appsecret: 897903a5f78c04a6e8131726d1280ead
+  domain: 5rxt98.natappfree.cc
+  token: 123456
+  #  #这个链接是写在微信公众号下面的，让用户打开，就会跳转到授权页。然后重定向到bind路径。在bind里用httpclient获取accesstoken，然后用accesstoken获取用户信息
+  #  getcode-url: https://open.weixin.qq.com/connect/oauth2/authorize?appid=${wx.appid}&redirect_uri=http%3A%2F%2${wx.domain}%2Fwx%2F${wx.bind-url}&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect
+  #获取调用微信接口所用的accessToken，和网页授权呢所需accessToken不同
+  url:
+    getAccessToken: https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${wx.appid}&secret=${wx.appsecret}
+    getWebaccessToken: https://api.weixin.qq.com/sns/oauth2/access_token?appid=${wx.appid}&secret=${wx.appsecret}&code=%s&grant_type=authorization_code
+    refreshAccessToken: https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=${wx.appid}&grant_type=refresh_token&refresh_token=%s
+    getUserInfo: https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s&lang=zh_CN
+    sendTemplateMessage: https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s
+  template-id:
+    work-list: XwfyxSBATjLPJWPQek2HCouhXF4OyEP1w02svlB-xC0
+    funds-arrivals: 9iSg5zJ8j0OcvzTFOSZ2rmXS3ckTxlKaGypLInLFScw
+    sales-order: DJVmb4-r0sFwAmG5FLe1cs_troPhW3q3BpA2nNDHUkU
+    balance: MHvGccVweURAL6wOwv_uKoAAu3JIGEpwLVHlvgec70U
+  content:
+    balance:
+      first: 尊敬的%s客户您好，您的余额查询结果如下：
+      remark: 切勿向任何人泄漏，如有异议请于3日内致电%s（公司联系电话）。
+    fundsArrivals:
+      first: 【%s】提醒您：已收到您的款项
+      remark: 本短信不做为收款凭据。如有异议请于3日内回电%s（公司联系电话）。
+    salesOrder:
+      first: 【%s】提醒您：您的采购订单已收到
+      remark:
+
+admin:
+  username: admin
+  password: 123456
+
+logging:
+  config: classpath:log4j2.yml
+
+server:
+  port: 8090
+  servlet.context-path: /
+  servlet:
+    session:
+      timeout: PT5H
+
+# 数据库访问配置
+spring:
+  #模板引擎
+  freemarker:
+    #关闭缓存
+    cache: false
+    request-context-attribute: request
+    #模板加载的位置
+    template-loader-path: classpath:/template
+    #前缀
+    suffix: .ftl
+    #后缀
+    prefix: /view/
+    settings:
+      number_format: '0.##'   #数字格式化，无小数点
+
+  resources:
+    static-locations: classpath:/template/static/
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:oracle:thin:@//192.168.100.209:1521/testdb
+    username: nc6
+    password: eSOuIv5GUgdyX3Uma9bgM0ardcoOHyNXOna91bZdNZJDsFBSTw4i7dVV/G4bxvSZwy53YCGJexZB0o4l3LNGew==
+    #关于数据库密码加密 需执行 java -cp druid-1.1.9.jar com.alibaba.druid.filter.config.ConfigTools yourpwd 将publicKey配置到下面的connectionProperties中去
+
+    #druid 连接池配置
+    druid:
+      #合并多个DruidDataSource的监控数据
+      use-global-data-source-stat: true
+      # 下面为连接池的补充设置，应用到上面所有数据源中
+      initial-size: 5
+      max-active: 20
+      min-idle: 5
+      # 配置获取连接等待超时的时间
+      max-wait: 60000
+      #      # 是否缓存preparedStatement，也就是PSCache  官方建议MySQL下建议关闭   个人建议如果想用SQL防火墙 建议打开
+      #      pool-prepared-statements: true
+      #      max-pool-prepared-statement-per-connection-size: 20
+      #      #和上面的等价
+      #      max-open-prepared-statements: 20
+      validation-query: SELECT 1 FROM hl_user
+      test-on-borrow: false
+      test-on-return: false
+      test-while-idle: true
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      time-between-eviction-runs-millis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      min-evictable-idle-time-millis: 300000
+      # 配置一个连接在池中最大生存的时间，单位是毫秒
+      #      max-evictable-idle-time-millis:
+      #配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+      filters:  wall,stat,log4j2,config
+      #      #测试环境配置
+      connectionProperties: druid.config.enabled=true;config.decrypt=true;config.decrypt.key=MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIsbLX0qFu4fvFkOBILH4utQaUhkJsbW8ipBdTPNEdzc32pTXVJKMzRhvDo7XLJPueyQ5s/Kx+F1Oj6v0ext3eUCAwEAAQ==
+      filter:
+        wall:
+          enabled: true
+          db-type: oracle
+          config:
+            comment-allow: true
+            drop-table-allow: false
+            alter-table-allow: false
+        stat:
+          enabled: true
+          db-type: oracle
+          merge-sql: true
+          log-slow-sql: true
+          slow-sql-millis: 5000
+
+        log4j2:
+          enabled: true
+
+  #配置定时任务线程池
+  task:
+    scheduling:
+      core-pool-size: 5 #最大线程池
+#  http:
+#    converters:
+#      preferred-json-mapper: jackson
+mybatis:
+  mapper-locations: classpath*:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+sms:
+  template: #短信模板
+    work-list: 【NC】%s
+    pre-alert: 【NC预警】%s
+    funds-arrivals: 【%s】收款提醒：本公司于%s收到您支付的货款%s元，本短信不做为收款凭据。如有异议请于3日内回电%s（公司联系电话）。
+    sales-order:
+      main: 【%s】%s客户您好，您于%s，采购单编号：%s，采购商品：%s。消费总金额%s元。
+      item: "%s(%s)，单价%s元，数量%s%s"
+    balance: 【%s】%s客户您好，截止%s，您的账户余额是%s元，切勿向任何人泄漏，如有异议请于3日内致电%s（公司联系电话）。
+httpclient:
+  connectTimeout: 20000
+  requestTimeout: 20000
+  socketTimeout: 30000
+  defaultMaxPerRoute: 100
+  defaultKeepAliveTimeMillis: 20000
+  closeIdleConnectionWaitTimeSecs: 30
+
+sender:
+  CUCC:
+    excutorSize: 45  #一次最大推送数量。
+    singleUrl: http://access.xx95.net:8886/Status_Port/Connect_Service.asmx/SendSms?ExtendCode=&epid={epid}&User_Name={User_Name}&password={password}&phone={phone}&content={content}&MsgID={MsgID}
+    batchUrl: http://access.xx95.net:8886/Status_Port/Connect_Service.asmx/Send?epid={epid}&User_Name={User_Name}&password={password}&content={content}
+    epid: 1
+    User_Name: hljt
+    password: a9a13568eea358b9
+
+#logging:
+#  level:
+#    root: info
+#  path: F://log//
+#  file: sms-platform.log

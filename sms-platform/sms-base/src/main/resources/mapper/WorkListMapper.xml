@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hlgf.sms.mapper.WorkListMapper">
+
+    <resultMap id="workListResultMap" type="com.hlgf.sms.model.WorkListEntity">
+        <result column="pkMessage" jdbcType="VARCHAR" property="pkMessage"/>
+        <result column="subject" jdbcType="VARCHAR" property="subject"/>
+        <result column="pkReceiver" jdbcType="VARCHAR" property="pkReceiver"/>
+        <result column="userName" jdbcType="VARCHAR" property="userName"/>
+        <result column="receiverName" jdbcType="VARCHAR" property="receiverName"/>
+        <result column="mobile" jdbcType="VARCHAR" property="mobile"/>
+        <result column="sendTime" jdbcType="TIMESTAMP" property="sendTime"/>
+        <result column="isHandled" jdbcType="VARCHAR" property="isHandled"/>
+        <result column="pkGroup" jdbcType="VARCHAR" property="pkGroup"/>
+        <result column="groupName" jdbcType="VARCHAR" property="groupName"/>
+    </resultMap>
+
+    <select id="findWorkListUnhandledRecently" resultMap="workListResultMap">
+        select
+        t1.pk_message pkMessage,
+        t1.subject subject,
+        t1.receiver pkReceiver,
+        t1.sendtime sendTime,
+        t1.ishandled isHandled,
+        t1.pk_org pkGroup,
+        og.name groupName,
+        t2.user_name userName,
+        t3.name receiverName,
+        t3.mobile mobile
+        from
+        sm_msg_content t1
+        left join sm_user t2 on t1.receiver = t2.cuserid
+        LEFT JOIN bd_psndoc t3 ON t2.pk_psndoc = t3.pk_psndoc
+        left JOIN org_orgs og ON t1.pk_org = og.pk_org
+        LEFT JOIN hl_sms_send_setting st ON st.pk_Group = t1.pk_org
+        where
+        1 = 1
+        AND t1.msgsourcetype = #{smsType}
+        AND t1.destination = 'inbox'
+        AND t1.receiver is not null
+        AND t1.ishandled = 'N'
+        AND
+        BITAND(st.state, ${@com.hlgf.sms.model.SmsSendSetting@WORK_LIST_REMIND}) <![CDATA[ <> ]]> 0
+        AND t1.sendtime > #{timeLimit}
+        <![CDATA[
+        	AND t1.sendtime < #{timeDeadline}
+    		]]>
+    </select>
+</mapper>

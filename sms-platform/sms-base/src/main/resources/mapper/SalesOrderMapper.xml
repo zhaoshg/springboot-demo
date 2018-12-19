@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hlgf.sms.mapper.SalesOrderMapper">
+
+    <resultMap id="salesOrderResultMap" type="com.hlgf.sms.model.SalesOrderEntity">
+        <result column="customerName" jdbcType="VARCHAR" property="customerName"/>
+        <result column="tel1" jdbcType="VARCHAR" property="tel1"/>
+        <result column="tel2" jdbcType="VARCHAR" property="tel2"/>
+        <result column="tel3" jdbcType="VARCHAR" property="tel3"/>
+        <result column="pkCustomer" jdbcType="VARCHAR" property="pkCustomer"/>
+        <result column="pkGroup" jdbcType="TIMESTAMP" property="pkGroup"/>
+        <result column="groupName" jdbcType="VARCHAR" property="groupName"/>
+        <result column="pkRelated" jdbcType="VARCHAR" property="pkRelated"/>
+        <result column="relatedNum" jdbcType="VARCHAR" property="relatedNum"/>
+        <result column="passDate" jdbcType="VARCHAR" property="passDate"/>
+        <result column="productName" jdbcType="VARCHAR" property="productName"/>
+        <result column="productSize" jdbcType="VARCHAR" property="productSize"/>
+        <result column="count" jdbcType="DECIMAL" property="count"/>
+        <result column="price" jdbcType="DECIMAL" property="price"/>
+        <result column="unit" jdbcType="VARCHAR" property="unit"/>
+        <result column="state" jdbcType="INTEGER" property="state"/>
+    </resultMap>
+
+    <select id="findSalesOrderPassedRecently" resultMap="salesOrderResultMap">
+        SELECT
+        og.name groupName,--公司名称
+        og.pk_org pkGroup,--公司Id
+        s.taudittime passDate, --审批通过时间
+        s.vbillcode relatedNum, --采购单号
+        s.csaleorderid pkRelated,--单据Id
+        c.name customerName,--客户名称
+        c.pk_customer pkCustomer,--客户Id
+        c.tel1 tel1,
+        c.tel2 tel2,
+        c.tel3 tel3, --客户号码
+        bd.name productName,--物料名称
+        sb.vbdef8 productSize,--物料规格
+        sb.nnum count, --数量
+        sb.ntaxprice price,--价格
+        bm.name unit,--单位
+        st.state state--短信推送开通状态
+        FROM
+        so_saleorder_b sb
+        LEFT JOIN so_saleorder s ON sb.csaleorderid = s.csaleorderid
+        LEFT JOIN bd_material_v bd ON bd.pk_material = sb.vbdef5
+        LEFT JOIN org_orgs og ON s.pk_org = og.pk_org
+        LEFT JOIN bd_customer c ON s.ccustomerid = c.pk_customer
+        LEFT JOIN bd_measdoc bm ON sb.cunitid = bm.pk_measdoc
+        LEFT JOIN hl_sms_send_setting st ON st.pk_Group = og.pk_org
+        WHERE
+        s.fstatusflag = 2
+        AND
+        BITAND(st.state, ${@com.hlgf.sms.model.SmsSendSetting@SALES_ORDER_NOTIFICATION})  <![CDATA[<>]]> 0
+        AND s.taudittime > #{timeLimit}
+    </select>
+</mapper>

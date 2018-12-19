@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hlgf.sms.mapper.BalanceMapper">
+
+    <resultMap id="balanceResultMap" type="com.hlgf.sms.model.BalanceEntity">
+        <result column="customerName" jdbcType="VARCHAR" property="customerName"/>
+        <result column="pkCustomer" jdbcType="VARCHAR" property="pkCustomer"/>
+        <result column="tel1" jdbcType="VARCHAR" property="tel1"/>
+        <result column="tel2" jdbcType="VARCHAR" property="tel2"/>
+        <result column="tel3" jdbcType="VARCHAR" property="tel3"/>
+        <result column="balance" jdbcType="DECIMAL" property="balance"/>
+        <result column="pkGroup" jdbcType="VARCHAR" property="pkGroup"/>
+        <result column="groupNumber" jdbcType="VARCHAR" property="groupNumber"/>
+        <result column="groupName" jdbcType="VARCHAR" property="groupName"/>
+    </resultMap>
+
+    <select id="findBalance" resultMap="balanceResultMap">
+        SELECT
+            custname customerName,
+            pkCustomer,
+            tel1,
+            tel2,
+            tel3,
+            ye balance,
+            pk_org pkGroup,
+            org_tel groupNumber,
+            org_name groupName
+        FROM
+            view_Balance v left join HL_SMS_SEND_SETTING setting on v.PK_ORG = setting.PK_GROUP
+	    where BITAND(setting.state, ${@com.hlgf.sms.model.SmsSendSetting@BALANCE_REMIND}) <![CDATA[<>]]> 0
+    </select>
+</mapper>
